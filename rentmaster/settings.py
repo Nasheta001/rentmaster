@@ -8,6 +8,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+
+# -----------------------
+# APPS
+# -----------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,18 +22,25 @@ INSTALLED_APPS = [
     'core',
 ]
 
+
+# -----------------------
+# MIDDLEWARE
+# -----------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # important
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
 
+
+# -----------------------
+# URLS / TEMPLATES
+# -----------------------
 ROOT_URLCONF = 'rentmaster.urls'
 
 TEMPLATES = [
@@ -50,6 +61,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rentmaster.wsgi.application'
 
+
+# -----------------------
+# DATABASE
+# -----------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -57,6 +72,10 @@ DATABASES = {
     }
 }
 
+
+# -----------------------
+# AUTH PASSWORDS
+# -----------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -64,25 +83,43 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+
+# -----------------------
+# INTERNATIONALIZATION
+# -----------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Nairobi'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+
+# -----------------------
+# STATIC FILES (FIXED)
+# -----------------------
+STATIC_URL = '/static/'
+
+# where your local static files are
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# where Django collects them (for production)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# WhiteNoise storage (important for Render)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# -----------------------
+# MEDIA FILES
+# -----------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+
+# -----------------------
+# DEFAULTS
+# -----------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
-ALLOWED_HOSTS = ["*"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
