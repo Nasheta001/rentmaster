@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+{% block title %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>💳 Payments</h1><p>Track all rent payments</p></div>
+  <a href="{% url 'payment_create' %}" class="btn btn-primary">➕ Record Payment</a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+  <div class="card-body" style="padding:14px 18px;">
+    <form method="get" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group" style="min-width:140px;">
+        <label>Month</label>
+        <select name="month" class="form-select">
+          {% for num, name in months %}
+            <option value="{{ num }}" {% if num == selected_month %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="min-width:100px;">
+        <label>Year</label>
+        <select name="year" class="form-select">
+          {% for yr in years %}
+            <option value="{{ yr }}" {% if yr == selected_year %}selected{% endif %}>{{ yr }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="min-width:130px;">
+        <label>Status</label>
+        <select name="status" class="form-select">
+          <option value="">All</option>
+          <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Paid</option>
+          <option value="due" {% if selected_status == 'due' %}selected{% endif %}>Due</option>
+          <option value="late" {% if selected_status == 'late' %}selected{% endif %}>Late</option>
+          <option value="partial" {% if selected_status == 'partial' %}selected{% endif %}>Partial</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">🔍 Filter</button>
+      <a href="{% url 'payment_list' %}" class="btn btn-outline">Reset</a>
+    </form>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+  <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-info"><h3>KES {{ total_collected|floatformat:0 }}</h3><p>Collected</p></div></div>
+  <div class="stat-card blue"><div class="stat-icon">📊</div><div class="stat-info"><h3>KES {{ total_expected|floatformat:0 }}</h3><p>Expected</p></div></div>
+  <div class="stat-card orange"><div class="stat-icon">⏳</div><div class="stat-info"><h3>KES {{ total_expected|add:"-0"|floatformat:0 }}</h3><p>Balance</p></div></div>
+</div>
+
+<div class="card">
+  {% if payments %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Receipt #</th><th>Tenant</th><th>Unit</th><th>Period</th><th>Expected</th><th>Paid</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for payment in payments %}
+        <tr>
+          <td style="font-family:monospace;font-size:12px;">{{ payment.receipt_number }}</td>
+          <td><a href="{% url 'tenant_detail' payment.tenant.pk %}" style="color:#1a56db;font-weight:600;">{{ payment.tenant.full_name }}</a></td>
+          <td style="font-size:13px;color:#718096;">{{ payment.tenant.unit|default:"—" }}</td>
+          <td>{{ payment.get_period_display_str }}</td>
+          <td>{{ payment.amount_expected|floatformat:0 }}</td>
+          <td>{{ payment.amount_paid|floatformat:0 }}</td>
+          <td>{{ payment.get_payment_method_display|default:"—" }}</td>
+          <td><span class="badge badge-{{ payment.status }}">{{ payment.get_status_display }}</span>{% if payment.days_late > 0 %}<br><span style="font-size:11px;color:#c81e1e;">{{ payment.days_late }}d late</span>{% endif %}</td>
+          <td class="d-flex gap-2">
+            <a href="{% url 'payment_receipt' payment.pk %}" class="btn btn-sm btn-outline">🧾</a>
+            <a href="{% url 'payment_edit' payment.pk %}" class="btn btn-sm btn-outline">✏️</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">💳</div><h3>No payments found</h3>
+    <p>No payments match your filter, or none recorded yet.</p>
+    <a href="{% url 'payment_create' %}" class="btn btn-primary mt-2">➕ Record Payment</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

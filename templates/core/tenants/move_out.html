@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+{% block title %}Move Out — {{ tenant.full_name }}{% endblock %}
+{% block page_title %}Process Move Out{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'tenant_list' %}">Tenants</a> › <a href="{% url 'tenant_detail' tenant.pk %}">{{ tenant.full_name }}</a> › Move Out</div>
+<div class="card" style="max-width:520px;">
+  <div class="card-header"><h3>📦 Move Out — {{ tenant.full_name }}</h3></div>
+  <div class="card-body">
+    <div class="alert alert-warning">⚠️ This will mark the tenant as moved out and set their unit to vacant.</div>
+    <form method="post">{% csrf_token %}
+      <div class="form-group mb-2"><label>Move-out Date *</label><input type="date" name="move_out_date" class="form-control" required></div>
+      <div class="form-group mb-2"><label>Notes (optional)</label><textarea name="notes" class="form-control" rows="3" placeholder="Reason for leaving, unit condition..."></textarea></div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-warning">📦 Confirm Move Out</button>
+        <a href="{% url 'tenant_detail' tenant.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ announcement.title }}{% endblock %}
+{% block page_title %}Announcement{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'announcement_list' %}">Announcements</a> › {{ announcement.title }}</div>
+<div class="card" style="max-width:700px;">
+  <div class="card-header">
+    <h3>{{ announcement.title }}</h3>
+    <span class="badge badge-{{ announcement.priority }}">{{ announcement.get_priority_display }}</span>
+  </div>
+  <div class="card-body">
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <span class="badge badge-info">{{ announcement.get_audience_display }}</span>
+      {% if announcement.property %}<span class="badge" style="background:#f1f5f9;">{{ announcement.property.name }}</span>{% endif %}
+    </div>
+    <p style="line-height:1.7;font-size:15px;">{{ announcement.message }}</p>
+    <div style="margin-top:20px;font-size:12px;color:#718096;">Posted {{ announcement.created_at|date:"d M Y H:i" }}</div>
+    <div class="form-actions">
+      <a href="{% url 'announcement_delete' announcement.pk %}" class="btn btn-danger">🗑️ Delete</a>
+      <a href="{% url 'announcement_list' %}" class="btn btn-outline">← Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

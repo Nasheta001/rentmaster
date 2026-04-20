@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block title %}Properties{% endblock %}
+{% block page_title %}Properties{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>🏢 My Properties</h1><p>Manage all your properties and units</p></div>
+  <a href="{% url 'property_create' %}" class="btn btn-primary">➕ Add Property</a>
+</div>
+{% if properties %}
+<div class="property-grid">
+  {% for prop in properties %}
+  <div class="property-card">
+    <div class="property-card-header">
+      <h3>{{ prop.name }}</h3>
+      <p>📍 {{ prop.address }}, {{ prop.city }}</p>
+    </div>
+    <div class="property-card-body">
+      <div class="unit-stats">
+        <div class="unit-stat"><strong>{{ prop.total_units }}</strong><span>Total Units</span></div>
+        <div class="unit-stat"><strong style="color:#057a55;">{{ prop.occupied_units }}</strong><span>Occupied</span></div>
+        <div class="unit-stat"><strong style="color:#c27803;">{{ prop.vacant_units }}</strong><span>Vacant</span></div>
+      </div>
+      {% if prop.description %}<p style="font-size:13px;color:#718096;margin-top:8px;">{{ prop.description|truncatechars:80 }}</p>{% endif %}
+    </div>
+    <div class="property-card-footer">
+      <a href="{% url 'property_detail' prop.pk %}" class="btn btn-primary btn-sm">View Details</a>
+      <a href="{% url 'property_edit' prop.pk %}" class="btn btn-outline btn-sm">✏️ Edit</a>
+      <a href="{% url 'unit_create' prop.pk %}" class="btn btn-outline btn-sm">➕ Unit</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card"><div class="empty-state">
+  <div class="icon">🏢</div>
+  <h3>No properties yet</h3>
+  <p>Add your first property to get started.</p>
+  <a href="{% url 'property_create' %}" class="btn btn-primary mt-2">➕ Add Property</a>
+</div></div>
+{% endif %}
+{% endblock %}

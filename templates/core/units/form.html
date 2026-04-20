@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{% url 'property_list' %}">Properties</a> ›
+  <a href="{% url 'property_detail' property.pk %}">{{ property.name }}</a> › {{ title }}
+</div>
+<div class="card" style="max-width:700px;">
+  <div class="card-header"><h3>{{ title }} — {{ property.name }}</h3></div>
+  <div class="card-body">
+    <form method="post">{% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group"><label>Unit Number *</label>{{ form.unit_number }}{% if form.unit_number.errors %}<span class="text-danger fs-sm">{{ form.unit_number.errors.0 }}</span>{% endif %}</div>
+        <div class="form-group"><label>Unit Type</label>{{ form.unit_type }}</div>
+        <div class="form-group"><label>Floor</label>{{ form.floor }}</div>
+        <div class="form-group"><label>Size (sq ft)</label>{{ form.size_sqft }}</div>
+        <div class="form-group"><label>Monthly Rent (KES) *</label>{{ form.rent_amount }}</div>
+        <div class="form-group"><label>Status</label>{{ form.status }}</div>
+        <div class="form-group"><label>Available From</label>{{ form.available_from }}</div>
+        <div class="form-group full"><label>Description</label>{{ form.description }}</div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Save Unit</button>
+        <a href="{% url 'property_detail' property.pk %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

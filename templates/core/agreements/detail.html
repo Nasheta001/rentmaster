@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ agreement.title }}{% endblock %}
+{% block page_title %}Agreement{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'agreement_list' %}">Agreements</a> › {{ agreement.title }}</div>
+<div class="card" style="max-width:800px;">
+  <div class="card-header">
+    <h3>{{ agreement.title }}</h3>
+    <div class="d-flex gap-2">
+      <span class="badge badge-info">{{ agreement.get_agreement_type_display }}</span>
+      {% if agreement.is_public %}<span class="badge badge-success">Public</span>{% endif %}
+    </div>
+  </div>
+  <div class="card-body">
+    {% if agreement.description %}<p style="color:#718096;margin-bottom:16px;">{{ agreement.description }}</p>{% endif %}
+    {% if agreement.document %}
+      <div style="margin-bottom:16px;"><a href="{{ agreement.document.url }}" class="btn btn-primary" target="_blank">📥 Download Document</a></div>
+    {% endif %}
+    {% if agreement.content %}
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;white-space:pre-wrap;font-size:14px;line-height:1.7;">{{ agreement.content }}</div>
+    {% endif %}
+    <div style="margin-top:16px;font-size:12px;color:#718096;">Last updated: {{ agreement.updated_at|date:"d M Y H:i" }}</div>
+    <div class="form-actions">
+      <a href="{% url 'agreement_edit' agreement.pk %}" class="btn btn-outline">✏️ Edit</a>
+      <a href="{% url 'agreement_delete' agreement.pk %}" class="btn btn-danger">🗑️ Delete</a>
+      <a href="{% url 'agreement_list' %}" class="btn btn-outline">← Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

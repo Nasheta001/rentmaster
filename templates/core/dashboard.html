@@ -1,0 +1,157 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
+    <p>Here's your property overview for <strong>{{ current_month }}</strong></p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'payment_create' %}" class="btn btn-success">💳 Record Payment</a>
+    <a href="{% url 'tenant_create' %}" class="btn btn-primary">➕ Add Tenant</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card blue">
+    <div class="stat-icon">🏢</div>
+    <div class="stat-info"><h3>{{ total_properties }}</h3><p>Total Properties</p></div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-icon">👥</div>
+    <div class="stat-info"><h3>{{ total_tenants }}</h3><p>Active Tenants</p></div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon">💰</div>
+    <div class="stat-info"><h3>KES {{ total_collected|floatformat:0 }}</h3><p>Rent Collected ({{ current_month }})</p></div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-info"><h3>KES {{ pending_rent|floatformat:0 }}</h3><p>Pending Rent</p></div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-icon">🔴</div>
+    <div class="stat-info"><h3>{{ late_count }}</h3><p>Late Payments</p></div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon">🔓</div>
+    <div class="stat-info"><h3>{{ vacant_units }}</h3><p>Vacant Units</p></div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div>
+    <!-- Late Payments -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3>⚠️ Late Payments ({{ current_month }})</h3>
+        <a href="{% url 'payment_list' %}?status=late" class="btn btn-sm btn-outline">View All</a>
+      </div>
+      <div class="table-wrapper">
+        {% if late_tenants %}
+        <table>
+          <thead><tr><th>Tenant</th><th>Unit</th><th>Expected</th><th>Action</th></tr></thead>
+          <tbody>
+          {% for payment in late_tenants %}
+            <tr>
+              <td><strong>{{ payment.tenant.full_name }}</strong></td>
+              <td>{{ payment.tenant.unit|default:"—" }}</td>
+              <td>KES {{ payment.amount_expected|floatformat:0 }}</td>
+              <td><a href="{% url 'payment_edit' payment.pk %}" class="btn btn-sm btn-warning">Record</a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+          <div class="empty-state" style="padding:24px;">
+            <div class="icon">✅</div>
+            <p>No late payments this month!</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Upcoming Move-outs -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3>📅 Upcoming Move-outs (Next 30 Days)</h3>
+      </div>
+      <div class="card-body">
+        {% if upcoming_moveouts %}
+          {% for tenant in upcoming_moveouts %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+              <div>
+                <strong>{{ tenant.full_name }}</strong>
+                <div style="font-size:12px;color:#718096;">{{ tenant.unit }}</div>
+              </div>
+              <div style="text-align:right;">
+                <span class="badge badge-warning">{{ tenant.move_out_date }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted text-center" style="padding:16px 0;">No upcoming move-outs.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <!-- Quick Actions -->
+    <div class="card mb-3">
+      <div class="card-header"><h3>⚡ Quick Actions</h3></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+        <a href="{% url 'property_create' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">🏢 Add Property</a>
+        <a href="{% url 'tenant_create' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">👤 Add Tenant</a>
+        <a href="{% url 'payment_create' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">💳 Record Payment</a>
+        <a href="{% url 'announcement_create' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">📢 Send Announcement</a>
+        <a href="{% url 'maintenance_create' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">🔧 Log Maintenance</a>
+        <a href="{% url 'reports' %}" class="btn btn-outline w-100" style="justify-content:flex-start;">📊 View Reports</a>
+      </div>
+    </div>
+
+    <!-- Recent Announcements -->
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3>📢 Recent Notices</h3>
+        <a href="{% url 'announcement_create' %}" class="btn btn-sm btn-primary">+ New</a>
+      </div>
+      <div class="card-body" style="padding:12px 16px;">
+        {% if announcements %}
+          {% for ann in announcements %}
+            <div class="announcement-card {{ ann.priority }}" style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <h4>{{ ann.title }}</h4>
+                <span class="badge badge-{{ ann.priority }}">{{ ann.get_priority_display }}</span>
+              </div>
+              <p>{{ ann.message|truncatechars:80 }}</p>
+              <div class="announcement-meta">
+                <span>{{ ann.created_at|date:"M d, Y" }}</span>
+                <span>{{ ann.get_audience_display }}</span>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted text-center" style="padding:16px 0;">No announcements yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Maintenance Alert -->
+    {% if open_maintenance %}
+    <div class="card" style="border:2px solid #f59e0b;">
+      <div class="card-body" style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:28px;">🔧</span>
+        <div>
+          <strong>{{ open_maintenance }} open maintenance request{{ open_maintenance|pluralize }}</strong>
+          <div><a href="{% url 'maintenance_list' %}" style="color:#1a56db;font-size:13px;">View all →</a></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

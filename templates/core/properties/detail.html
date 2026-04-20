@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ property.name }}{% endblock %}
+{% block page_title %}{{ property.name }}{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{% url 'property_list' %}">Properties</a> › {{ property.name }}
+</div>
+<div class="page-header">
+  <div>
+    <h1>{{ property.name }}</h1>
+    <p>📍 {{ property.address }}, {{ property.city }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary">➕ Add Unit</a>
+    <a href="{% url 'property_edit' property.pk %}" class="btn btn-outline">✏️ Edit</a>
+    <a href="{% url 'property_delete' property.pk %}" class="btn btn-danger">🗑️ Delete</a>
+  </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+  <div class="stat-card blue"><div class="stat-icon">🏠</div><div class="stat-info"><h3>{{ property.total_units }}</h3><p>Total Units</p></div></div>
+  <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-info"><h3>{{ property.occupied_units }}</h3><p>Occupied</p></div></div>
+  <div class="stat-card orange"><div class="stat-icon">🔓</div><div class="stat-info"><h3>{{ property.vacant_units }}</h3><p>Vacant</p></div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>🏠 Units</h3></div>
+  {% if units %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Unit #</th><th>Type</th><th>Floor</th><th>Rent (KES)</th><th>Status</th><th>Tenant</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for unit in units %}
+        <tr>
+          <td><strong>{{ unit.unit_number }}</strong></td>
+          <td>{{ unit.unit_type }}</td>
+          <td>{{ unit.floor|default:"—" }}</td>
+          <td>{{ unit.rent_amount|floatformat:0 }}</td>
+          <td><span class="badge badge-{{ unit.status }}">{{ unit.get_status_display }}</span></td>
+          <td>
+            {% with tenant=unit.current_tenant %}
+              {% if tenant %}<a href="{% url 'tenant_detail' tenant.pk %}">{{ tenant.full_name }}</a>
+              {% else %}<span class="text-muted">Vacant</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td class="d-flex gap-2">
+            <a href="{% url 'unit_edit' unit.pk %}" class="btn btn-sm btn-outline">✏️</a>
+            <a href="{% url 'unit_delete' unit.pk %}" class="btn btn-sm btn-danger">🗑️</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🏠</div><h3>No units yet</h3>
+    <a href="{% url 'unit_create' property.pk %}" class="btn btn-primary mt-2">➕ Add First Unit</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

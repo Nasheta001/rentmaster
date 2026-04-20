@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ tenant.full_name }}{% endblock %}
+{% block page_title %}Tenant Profile{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'tenant_list' %}">Tenants</a> › {{ tenant.full_name }}</div>
+<div class="page-header">
+  <div>
+    <h1>{{ tenant.full_name }}</h1>
+    <p>{{ tenant.unit|default:"No unit assigned" }} | Moved in: {{ tenant.move_in_date }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'payment_create' %}" class="btn btn-success">💳 Record Payment</a>
+    <a href="{% url 'tenant_edit' tenant.pk %}" class="btn btn-outline">✏️ Edit</a>
+    {% if tenant.is_active %}<a href="{% url 'tenant_move_out' tenant.pk %}" class="btn btn-warning">📦 Move Out</a>{% endif %}
+    <a href="{% url 'tenant_delete' tenant.pk %}" class="btn btn-danger">🗑️</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+  <!-- Info Card -->
+  <div>
+    <div class="card mb-3">
+      <div class="card-header"><h3>👤 Tenant Info</h3></div>
+      <div class="card-body">
+        <div class="receipt-row"><span class="label">Phone</span><span class="value">{{ tenant.phone }}</span></div>
+        <div class="receipt-row"><span class="label">Email</span><span class="value">{{ tenant.email|default:"—" }}</span></div>
+        <div class="receipt-row"><span class="label">National ID</span><span class="value">{{ tenant.national_id|default:"—" }}</span></div>
+        <div class="receipt-row"><span class="label">Unit</span><span class="value">{{ tenant.unit|default:"—" }}</span></div>
+        <div class="receipt-row"><span class="label">Monthly Rent</span><span class="value">KES {{ tenant.rent_amount|floatformat:0 }}</span></div>
+        <div class="receipt-row"><span class="label">Due Day</span><span class="value">{{ tenant.rent_due_day }}th of month</span></div>
+        <div class="receipt-row"><span class="label">Deposit</span><span class="value">KES {{ tenant.deposit_amount|floatformat:0 }} {% if tenant.deposit_paid %}<span class="badge badge-success">Paid</span>{% else %}<span class="badge badge-danger">Unpaid</span>{% endif %}</span></div>
+        <div class="receipt-row"><span class="label">Status</span><span class="value"><span class="badge badge-{{ current_status }}">{{ current_status|title }}</span></span></div>
+        {% if tenant.notes %}<div style="margin-top:12px;padding:10px;background:#f8fafc;border-radius:6px;font-size:13px;"><strong>Notes:</strong> {{ tenant.notes }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>📋 Lease History</h3></div>
+      <div class="card-body">
+        {% for event in lease_events %}
+          <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;">
+            <span>{% if event.event_type == 'move_in' %}🏠{% elif event.event_type == 'move_out' %}📦{% else %}📋{% endif %}</span>
+            <div><div style="font-size:13px;font-weight:600;">{{ event.get_event_type_display }}</div><div style="font-size:12px;color:#718096;">{{ event.event_date }}</div>{% if event.notes %}<div style="font-size:12px;color:#718096;">{{ event.notes }}</div>{% endif %}</div>
+          </div>
+        {% empty %}<p class="text-muted fs-sm">No events recorded.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Payments -->
+  <div>
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3>💳 Payment History</h3>
+        <a href="{% url 'payment_create' %}" class="btn btn-sm btn-primary">+ Record</a>
+      </div>
+      <div class="table-wrapper">
+        {% if payments %}
+        <table>
+          <thead><tr><th>Period</th><th>Expected</th><th>Paid</th><th>Method</th><th>Status</th><th>Receipt</th></tr></thead>
+          <tbody>
+          {% for payment in payments %}
+            <tr>
+              <td>{{ payment.get_period_display_str }}</td>
+              <td>{{ payment.amount_expected|floatformat:0 }}</td>
+              <td>{{ payment.amount_paid|floatformat:0 }}</td>
+              <td>{{ payment.get_payment_method_display|default:"—" }}</td>
+              <td><span class="badge badge-{{ payment.status }}">{{ payment.get_status_display }}</span></td>
+              <td><a href="{% url 'payment_receipt' payment.pk %}" class="btn btn-sm btn-outline">🧾</a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state" style="padding:24px;"><p>No payments recorded yet.</p></div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if maintenance %}
+    <div class="card">
+      <div class="card-header"><h3>🔧 Maintenance Requests</h3></div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Issue</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+          {% for req in maintenance %}
+            <tr>
+              <td>{{ req.title }}</td>
+              <td><span class="badge badge-{{ req.priority }}">{{ req.get_priority_display }}</span></td>
+              <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+              <td>{{ req.reported_date }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

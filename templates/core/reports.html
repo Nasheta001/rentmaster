@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>📊 Reports</h1><p>Financial and occupancy overview</p></div>
+</div>
+
+<!-- Current Month Summary -->
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:28px;">
+  <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-info"><h3>KES {{ total_collected|floatformat:0 }}</h3><p>Collected ({{ current_month }})</p></div></div>
+  <div class="stat-card blue"><div class="stat-icon">📊</div><div class="stat-info"><h3>KES {{ total_expected|floatformat:0 }}</h3><p>Expected ({{ current_month }})</p></div></div>
+  <div class="stat-card orange"><div class="stat-icon">⏳</div><div class="stat-info"><h3>KES {{ total_pending|floatformat:0 }}</h3><p>Pending ({{ current_month }})</p></div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+  <!-- Monthly Chart (visual bars) -->
+  <div class="card">
+    <div class="card-header"><h3>📈 Last 6 Months — Collected vs Expected</h3></div>
+    <div class="card-body">
+      {% for month in monthly_data %}
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+          <strong>{{ month.month }} {{ month.year }}</strong>
+          <span>KES {{ month.collected|floatformat:0 }} / {{ month.expected|floatformat:0 }}</span>
+        </div>
+        {% if month.expected > 0 %}
+          {% widthratio month.collected month.expected 100 as pct %}
+          <div style="background:#e2e8f0;border-radius:6px;height:10px;overflow:hidden;">
+            <div style="background:#057a55;height:100%;width:{{ pct }}%;border-radius:6px;transition:width 0.4s;"></div>
+          </div>
+          <div style="font-size:11px;color:#718096;margin-top:3px;">{{ pct }}% collected</div>
+        {% else %}
+          <div style="background:#e2e8f0;border-radius:6px;height:10px;"><div style="background:#cbd5e0;height:100%;width:100%;border-radius:6px;"></div></div>
+          <div style="font-size:11px;color:#718096;margin-top:3px;">No payments expected</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Vacancy -->
+  <div class="card">
+    <div class="card-header"><h3>🏠 Unit Status</h3></div>
+    <div class="card-body">
+      {% with total=vacancy_data.occupied|add:vacancy_data.vacant|add:vacancy_data.reserved|add:vacancy_data.maintenance %}
+      {% if total > 0 %}
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:40px;font-weight:700;color:#1a202c;">{{ total }}</div>
+          <div style="font-size:13px;color:#718096;">Total Units</div>
+        </div>
+    
+        <div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;"><span class="badge badge-occupied">Occupied</span><strong>{{ vacancy_data.occupied }}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;"><span class="badge badge-vacant">Vacant</span><strong>{{ vacancy_data.vacant }}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;"><span class="badge badge-reserved">Reserved</span><strong>{{ vacancy_data.reserved }}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;"><span class="badge badge-maintenance">Maintenance</span><strong>{{ vacancy_data.maintenance }}</strong></div>
+        </div>
+        {% if total > 0 %}
+          {% widthratio vacancy_data.occupied total 100 as occ_pct %}
+          <div style="margin-top:16px;">
+            <div style="font-size:13px;margin-bottom:6px;">Occupancy Rate: <strong>{{ occ_pct }}%</strong></div>
+            <div style="background:#e2e8f0;border-radius:6px;height:12px;overflow:hidden;">
+              <div style="background:#057a55;height:100%;width:{{ occ_pct }}%;border-radius:6px;"></div>
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        <p class="text-muted text-center">No units found.</p>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+<div class="d-flex gap-2 mt-3">
+  <a href="{% url 'payment_list' %}" class="btn btn-outline">💳 View All Payments</a>
+  <a href="{% url 'tenant_list' %}" class="btn btn-outline">👥 View Tenants</a>
+</div>
+{% endblock %}

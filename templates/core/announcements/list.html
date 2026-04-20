@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>📢 Announcements</h1><p>Send and manage notices to tenants</p></div>
+  <a href="{% url 'announcement_create' %}" class="btn btn-primary">➕ New Announcement</a>
+</div>
+{% if announcements %}
+  {% for ann in announcements %}
+  <div class="announcement-card {{ ann.priority }}" style="position:relative;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span class="badge badge-{{ ann.priority }}">{{ ann.get_priority_display }}</span>
+          <span class="badge badge-info">{{ ann.get_audience_display }}</span>
+          {% if ann.property %}<span class="badge" style="background:#f1f5f9;color:#475569;">{{ ann.property.name }}</span>{% endif %}
+        </div>
+        <h4>{{ ann.title }}</h4>
+        <p>{{ ann.message }}</p>
+      </div>
+      <a href="{% url 'announcement_delete' ann.pk %}" class="btn btn-sm btn-danger" style="margin-left:16px;flex-shrink:0;">🗑️</a>
+    </div>
+    <div class="announcement-meta"><span>📅 {{ ann.created_at|date:"d M Y, H:i" }}</span></div>
+  </div>
+  {% endfor %}
+{% else %}
+<div class="card"><div class="empty-state">
+  <div class="icon">📢</div><h3>No announcements yet</h3>
+  <p>Create your first announcement to notify tenants.</p>
+  <a href="{% url 'announcement_create' %}" class="btn btn-primary mt-2">➕ Create Announcement</a>
+</div></div>
+{% endif %}
+{% endblock %}

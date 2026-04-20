@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+{% block title %}Maintenance{% endblock %}
+{% block page_title %}Maintenance{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>🔧 Maintenance Requests</h1><p>Track and resolve property issues</p></div>
+  <a href="{% url 'maintenance_create' %}" class="btn btn-primary">➕ Log Request</a>
+</div>
+
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  <a href="{% url 'maintenance_list' %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+  <a href="?status=open" class="btn btn-sm {% if status_filter == 'open' %}btn-primary{% else %}btn-outline{% endif %}">Open</a>
+  <a href="?status=in_progress" class="btn btn-sm {% if status_filter == 'in_progress' %}btn-primary{% else %}btn-outline{% endif %}">In Progress</a>
+  <a href="?status=resolved" class="btn btn-sm {% if status_filter == 'resolved' %}btn-primary{% else %}btn-outline{% endif %}">Resolved</a>
+</div>
+
+<div class="card">
+  {% if requests %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Issue</th><th>Unit</th><th>Tenant</th><th>Priority</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for req in requests %}
+        <tr>
+          <td><strong>{{ req.title }}</strong><br><span style="font-size:12px;color:#718096;">{{ req.description|truncatechars:60 }}</span></td>
+          <td>{{ req.unit }}</td>
+          <td>{% if req.tenant %}<a href="{% url 'tenant_detail' req.tenant.pk %}">{{ req.tenant.full_name }}</a>{% else %}—{% endif %}</td>
+          <td><span class="badge badge-{{ req.priority }}">{{ req.get_priority_display }}</span></td>
+          <td><span class="badge badge-{{ req.status }}">{{ req.get_status_display }}</span></td>
+          <td>{{ req.reported_date }}</td>
+          <td class="d-flex gap-2">
+            <a href="{% url 'maintenance_edit' req.pk %}" class="btn btn-sm btn-outline">✏️</a>
+            <a href="{% url 'maintenance_delete' req.pk %}" class="btn btn-sm btn-danger">🗑️</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">🔧</div><h3>No maintenance requests</h3>
+    <p>No issues reported{% if status_filter %} with status "{{ status_filter }}"{% endif %}.</p>
+    <a href="{% url 'maintenance_create' %}" class="btn btn-primary mt-2">➕ Log Request</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

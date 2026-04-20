@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'maintenance_list' %}">Maintenance</a> › {{ title }}</div>
+<div class="card" style="max-width:700px;">
+  <div class="card-header"><h3>{{ title }}</h3></div>
+  <div class="card-body">
+    <form method="post">{% csrf_token %}
+      <div class="form-grid">
+        <div class="form-group"><label>Unit *</label>{{ form.unit }}</div>
+        <div class="form-group"><label>Tenant (optional)</label>{{ form.tenant }}</div>
+        <div class="form-group full"><label>Issue Title *</label>{{ form.title }}</div>
+        <div class="form-group full"><label>Description *</label>{{ form.description }}</div>
+        <div class="form-group"><label>Priority</label>{{ form.priority }}</div>
+        <div class="form-group"><label>Status</label>{{ form.status }}</div>
+        <div class="form-group"><label>Reported Date</label>{{ form.reported_date }}</div>
+        <div class="form-group full"><label>Resolution Notes</label>{{ form.resolution_notes }}</div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Save</button>
+        <a href="{% url 'maintenance_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

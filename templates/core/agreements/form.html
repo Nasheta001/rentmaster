@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'agreement_list' %}">Agreements</a> › {{ title }}</div>
+<div class="card" style="max-width:800px;">
+  <div class="card-header"><h3>{{ title }}</h3></div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      <div class="form-grid single">
+        <div class="form-grid">
+          <div class="form-group"><label>Title *</label>{{ form.title }}</div>
+          <div class="form-group"><label>Type</label>{{ form.agreement_type }}</div>
+        </div>
+        <div class="form-group"><label>Description</label>{{ form.description }}</div>
+        <div class="form-group"><label>Upload Document (PDF/DOC)</label>{{ form.document }}</div>
+        <div class="form-group"><label>Or Paste Content</label>{{ form.content }}</div>
+        <div class="form-check"><label>{{ form.is_public }} Make this document public (visible in footer link)</label></div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Save Document</button>
+        <a href="{% url 'agreement_list' %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block title %}Agreements{% endblock %}
+{% block page_title %}Agreements{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>📄 Agreements & Documents</h1><p>Manage rental agreements, policies, and legal documents</p></div>
+  <a href="{% url 'agreement_create' %}" class="btn btn-primary">➕ Add Document</a>
+</div>
+{% if agreements %}
+<div class="card">
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Title</th><th>Type</th><th>Public</th><th>Updated</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for agreement in agreements %}
+        <tr>
+          <td><a href="{% url 'agreement_detail' agreement.pk %}" style="color:#1a56db;font-weight:600;">{{ agreement.title }}</a></td>
+          <td><span class="badge badge-info">{{ agreement.get_agreement_type_display }}</span></td>
+          <td>{% if agreement.is_public %}<span class="badge badge-success">Public</span>{% else %}<span class="badge badge-warning">Private</span>{% endif %}</td>
+          <td>{{ agreement.updated_at|date:"d M Y" }}</td>
+          <td class="d-flex gap-2">
+            <a href="{% url 'agreement_detail' agreement.pk %}" class="btn btn-sm btn-outline">👁️</a>
+            <a href="{% url 'agreement_edit' agreement.pk %}" class="btn btn-sm btn-outline">✏️</a>
+            <a href="{% url 'agreement_delete' agreement.pk %}" class="btn btn-sm btn-danger">🗑️</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card"><div class="empty-state">
+  <div class="icon">📄</div><h3>No documents yet</h3>
+  <p>Upload rental agreements, terms of service, or house rules.</p>
+  <a href="{% url 'agreement_create' %}" class="btn btn-primary mt-2">➕ Add Document</a>
+</div></div>
+{% endif %}
+{% endblock %}

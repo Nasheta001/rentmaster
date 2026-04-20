@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}Tenants{% endblock %}
+{% block page_title %}Tenants{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>👥 Tenants</h1><p>Manage all your tenants</p></div>
+  <a href="{% url 'tenant_create' %}" class="btn btn-primary">➕ Add Tenant</a>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+  <a href="?status=active" class="btn btn-sm {% if status_filter == 'active' %}btn-primary{% else %}btn-outline{% endif %}">Active</a>
+  <a href="?status=inactive" class="btn btn-sm {% if status_filter == 'inactive' %}btn-primary{% else %}btn-outline{% endif %}">Moved Out</a>
+</div>
+
+<div class="card">
+  {% if tenants %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Phone</th><th>Unit</th><th>Rent (KES)</th><th>Move-in</th><th>Move-out</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+      {% for tenant in tenants %}
+        <tr>
+          <td><a href="{% url 'tenant_detail' tenant.pk %}" style="font-weight:600;color:#1a56db;">{{ tenant.full_name }}</a></td>
+          <td>{{ tenant.phone }}</td>
+          <td>{{ tenant.unit|default:"—" }}</td>
+          <td>{{ tenant.rent_amount|floatformat:0 }}</td>
+          <td>{{ tenant.move_in_date }}</td>
+          <td>{{ tenant.move_out_date|default:"—" }}</td>
+          <td>
+            {% with status=tenant.get_current_month_payment_status %}
+              <span class="badge badge-{{ status }}">{{ status|title }}</span>
+            {% endwith %}
+          </td>
+          <td class="d-flex gap-2">
+            <a href="{% url 'tenant_detail' tenant.pk %}" class="btn btn-sm btn-outline">👁️</a>
+            <a href="{% url 'tenant_edit' tenant.pk %}" class="btn btn-sm btn-outline">✏️</a>
+            {% if tenant.is_active %}
+            <a href="{% url 'tenant_move_out' tenant.pk %}" class="btn btn-sm btn-warning">📦 Out</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">👥</div><h3>No tenants found</h3>
+    <p>{% if status_filter == 'inactive' %}No moved-out tenants.{% else %}Add your first tenant to get started.{% endif %}</p>
+    {% if status_filter == 'active' %}<a href="{% url 'tenant_create' %}" class="btn btn-primary mt-2">➕ Add Tenant</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
